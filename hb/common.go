@@ -1,8 +1,12 @@
 package hb
 
+// #include <stdlib.h>
 // #include <hb.h>
 import "C"
+import "unsafe"
 
+// Direction is the direction of a text segment or buffer.
+//
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-direction-t
 type Direction C.hb_direction_t
 
@@ -14,6 +18,9 @@ const (
 	DirectionBTT     Direction = C.HB_DIRECTION_BTT     // Text is set vertically from bottom to top.
 )
 
+// Learn is a data type for scripts. Each Script's value is a Tag corresponding
+// to the four-letter values defined by ISO 15924.
+//
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-script-t
 type Script C.hb_script_t
 
@@ -185,3 +192,142 @@ const (
 	ScriptNagMundari            Script = C.HB_SCRIPT_NAG_MUNDARI            // Nagm
 	ScriptInvalid               Script = C.HB_SCRIPT_INVALID                // No script set
 )
+
+// Language is a data type for languages. Each Language corresponds to a BCP 47
+// language tag.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-language-t
+type Language C.hb_language_t
+
+// TODO:
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-tag-from-string
+// func TagFromString(str string) {
+// 	cStr := C.CString(str)
+// 	defer C.free(unsafe.Pointer(cStr))
+//
+// 	return C.hb_tag_from_string(cStr)
+// }
+
+// TODO:
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-tag-to-string
+// func TagToString() {
+// 	return C.hb_tag_to_string()
+// }
+
+// DirectionFromString converts a string to a Direction.
+//
+// Matching is loose and applies only to the first letter. For examples, "LTR"
+// and "left-to-right" will both return DirectionLTR. Unmatched strings will
+// return DirectionInvalid
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-direction-from-string
+func DirectionFromString(str string) Direction {
+	cStr := C.CString(str)
+	defer C.free(unsafe.Pointer(cStr))
+
+	return Direction(C.hb_direction_from_string(cStr, -1))
+}
+
+// DirectionToString converts a Direction to a string.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-direction-to-string
+func DirectionToString(direction Direction) string {
+	return C.GoString(C.hb_direction_to_string(C.hb_direction_t(direction)))
+}
+
+// TODO:
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-script-from-iso15924-tag
+// func ScriptFromISO15924Tag() {
+// 	return C.hb_script_from_iso15924_tag()
+// }
+
+// TODO:
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-script-to-iso15924-tag
+// func ScriptToISO15924Tag() {
+// 	return C.hb_script_to_iso15924_tag()
+// }
+
+// ScriptFromString converts a string str representing an ISO 15924 script tag to
+// a corresponding Script. Shorthand for TagFromString then ScriptFromISO15924Tag.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-script-from-string
+func ScriptFromString(str string) Script {
+	cStr := C.CString(str)
+	defer C.free(unsafe.Pointer(cStr))
+
+	return Script(C.hb_script_from_string(cStr, -1))
+}
+
+// ScriptGetHorizontalDirection fetches the Direction of a script when it is set
+// horizontally. All right-to-left scripts will return DirectionRTL. All
+// left-to-right scripts will return DirectionLTR. Scripts that can be written
+// either horizontally or vertically will return DirectionInvalid. Unknown scripts
+// will return DirectionLTR.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-script-get-horizontal-direction
+func ScriptGetHorizontalDirection(script Script) Direction {
+	return Direction(C.hb_script_get_horizontal_direction(C.hb_script_t(script)))
+}
+
+// LanguageFromString converts str representing a BCP 47 language tag to the
+// corresponding Language.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-language-from-string
+func LanguageFromString(str string) Language {
+	cStr := C.CString(str)
+	defer C.free(unsafe.Pointer(cStr))
+
+	return Language(C.hb_language_from_string(cStr, -1))
+}
+
+// LanguageToString converts a Language to a string.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-language-to-string
+func LanguageToString(language Language) string {
+	return C.GoString(C.hb_language_to_string(language))
+}
+
+// LanguageGetDefault fetches the default language from current locale.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-language-get-default
+func LanguageGetDefault() Language {
+	return Language(C.hb_language_get_default())
+}
+
+// LanguageMatches checks whether a second language tag is the same or a more
+// specific version of the provided language tag. For example, "fa_IR.utf8" is a
+// more specific tag for "fa" or for "fa_IR".
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-language-matches
+func LanguageMatches(language, specific Language) bool {
+	return C.hb_language_matches(language, specific) == 1
+}
+
+// TODO:
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-from-string
+// func FeatureFromString() () {
+// 	return C.hb_feature_from_string()
+// }
+
+// TODO:
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-to-string
+// func FeatureToString() {
+// 	return C.hb_feature_to_string()
+// }
+
+// TODO:
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-variation-from-string
+// func VariationFromString() {
+// 	return C.hb_variation_from_string()
+// }
+
+// TODO:
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-variation-to-string
+// func VariationToString() {
+// 	return C.hb_variation_to_string()
+// }
+
+// DestroyFunc is a method type for destroying user-data callbacks.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-destroy-func-t
+type DestroyFunc C.hb_destroy_func_t
