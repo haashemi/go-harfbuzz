@@ -24,5 +24,5 @@ func NewBlob(filename string) *Blob {
 
 // NewBlobFromBytes returns a new Blob from the data.
 func NewBlobFromBytes(data []byte) *Blob {
-	return &Blob{b: hb.BlobCreate(string(data), len(data), hb.MemoryModeReadonly)}
+	return &Blob{b: hb.BlobCreate(string(data), len(data), hb.MemoryModeReadonly, nil, nil)}
 }

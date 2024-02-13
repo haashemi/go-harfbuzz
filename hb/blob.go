@@ -47,23 +47,22 @@ const (
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-create
 //
-// TODO: support user_data & its destroyer.
 // TODO: research on the blob data memory management.
-func BlobCreate(data string, length int, mode MemoryMode) Blob {
+func BlobCreate(data string, length int, mode MemoryMode, userData unsafe.Pointer, destroy DestroyFunc) Blob {
 	cData := C.CString(data)
 	defer C.free(unsafe.Pointer(cData))
 
-	return C.hb_blob_create(cData, C.uint(length), C.hb_memory_mode_t(mode), nil, nil)
+	return C.hb_blob_create(cData, C.uint(length), C.hb_memory_mode_t(mode), userData, destroy)
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-create-or-fail
 //
-// TODO: support user_data & its destroyer.
-func BlobCreateOrFail(data string, length int, mode MemoryMode) Blob {
+// TODO: research on the blob data memory management.
+func BlobCreateOrFail(data string, length int, mode MemoryMode, userData unsafe.Pointer, destroy DestroyFunc) Blob {
 	cData := C.CString(data)
 	defer C.free(unsafe.Pointer(cData))
 
-	return C.hb_blob_create_or_fail(cData, C.uint(length), C.hb_memory_mode_t(mode), nil, nil)
+	return C.hb_blob_create_or_fail(cData, C.uint(length), C.hb_memory_mode_t(mode), userData, destroy)
 }
 
 // BlobCreateFromFile creates a new blob containing the data from the specified
