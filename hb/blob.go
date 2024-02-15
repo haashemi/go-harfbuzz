@@ -56,8 +56,6 @@ func BlobCreate(data string, length int, mode MemoryMode, userData unsafe.Pointe
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-create-or-fail
-//
-// TODO: research on the blob data memory management.
 func BlobCreateOrFail(data string, length int, mode MemoryMode, userData unsafe.Pointer, destroy DestroyFunc) Blob {
 	cData := C.CString(data)
 	defer C.free(unsafe.Pointer(cData))
@@ -110,10 +108,14 @@ func BlobDestroy(blob Blob) {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-set-user-data
-// TODO: C.hb_blob_set_user_data
+func BlobSetUserData(blob Blob, key *UserDataKey, data unsafe.Pointer, destroy DestroyFunc, replace bool) {
+	C.hb_blob_set_user_data(blob, (*C.hb_user_data_key_t)(key), data, destroy, cBool(replace))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-get-user-data
-// TODO: C.hb_blob_get_user_data
+func BlobGetUserData(blob Blob, key *UserDataKey) unsafe.Pointer {
+	return C.hb_blob_get_user_data(blob, (*C.hb_user_data_key_t)(key))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-make-immutable
 func BlobMakeImmutable(blob Blob) {

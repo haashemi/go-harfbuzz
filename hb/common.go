@@ -193,6 +193,11 @@ const (
 	ScriptInvalid               Script = C.HB_SCRIPT_INVALID                // No script set
 )
 
+// UserDataKey is a data structure for holding user-data keys.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-user-data-key-t
+type UserDataKey C.hb_user_data_key_t
+
 // Language is a data type for languages. Each Language corresponds to a BCP 47
 // language tag.
 //

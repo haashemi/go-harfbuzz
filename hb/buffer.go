@@ -92,8 +92,13 @@ func BufferDestroy(buffer Buffer) {
 	C.hb_buffer_destroy(buffer)
 }
 
-// TODO: hb_buffer_set_user_data
-// TODO: hb_buffer_get_user_data
+func BufferSetUserData(buffer Buffer, key *UserDataKey, data unsafe.Pointer, destroy DestroyFunc, replace bool) bool {
+	return C.hb_buffer_set_user_data(buffer, (*C.hb_user_data_key_t)(key), data, destroy, cBool(replace)) == 1
+}
+
+func BufferGetUserData(buffer Buffer, key *UserDataKey) unsafe.Pointer {
+	return C.hb_buffer_get_user_data(buffer, (*C.hb_user_data_key_t)(key))
+}
 
 // BufferReset resets the buffer to its initial status, as if it was just newly
 // created with BufferCreate.
