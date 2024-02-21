@@ -3,7 +3,9 @@ package hb
 // #include <stdlib.h>
 // #include <hb.h>
 import "C"
-import "unsafe"
+import (
+	"unsafe"
+)
 
 // Direction is the direction of a text segment or buffer.
 //
@@ -204,20 +206,39 @@ type UserDataKey C.hb_user_data_key_t
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-language-t
 type Language C.hb_language_t
 
-// TODO:
-// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-tag-from-string
-// func TagFromString(str string) {
-// 	cStr := C.CString(str)
-// 	defer C.free(unsafe.Pointer(cStr))
-//
-// 	return C.hb_tag_from_string(cStr)
-// }
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-t
+type Feature struct {
+	Tag   Tag
+	Value uint32
+	Start uint32
+	End   uint32
+}
 
-// TODO:
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-variation-t
+type Variation struct {
+	Tag   Tag
+	Value float32
+}
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-tag-t
+type Tag [4]byte
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-tag-from-string
+func TagFromString(str string) Tag {
+	cStr := C.CString(str)
+	defer C.free(unsafe.Pointer(cStr))
+
+	tag := C.hb_tag_from_string(cStr, -1)
+	return *(*Tag)(unsafe.Pointer(&tag))
+}
+
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-tag-to-string
-// func TagToString() {
-// 	return C.hb_tag_to_string()
-// }
+func TagToString(tag Tag) string {
+	var buf [4]byte
+	C.hb_tag_to_string(*(*C.hb_tag_t)(unsafe.Pointer(&tag)), (*C.char)(unsafe.Pointer(&buf)))
+
+	return string(buf[:])
+}
 
 // DirectionFromString converts a string to a Direction.
 //
@@ -240,17 +261,16 @@ func DirectionToString(direction Direction) string {
 	return C.GoString(C.hb_direction_to_string(C.hb_direction_t(direction)))
 }
 
-// TODO:
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-script-from-iso15924-tag
-// func ScriptFromISO15924Tag() {
-// 	return C.hb_script_from_iso15924_tag()
-// }
+func ScriptFromISO15924Tag(tag Tag) Script {
+	return Script(C.hb_script_from_iso15924_tag(*(*C.hb_tag_t)(unsafe.Pointer(&tag))))
+}
 
-// TODO:
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-script-to-iso15924-tag
-// func ScriptToISO15924Tag() {
-// 	return C.hb_script_to_iso15924_tag()
-// }
+func ScriptToISO15924Tag(script Script) Tag {
+	tag := C.hb_script_to_iso15924_tag(C.hb_script_t(script))
+	return *(*Tag)(unsafe.Pointer(&tag))
+}
 
 // ScriptFromString converts a string str representing an ISO 15924 script tag to
 // a corresponding Script. Shorthand for TagFromString then ScriptFromISO15924Tag.
@@ -308,29 +328,37 @@ func LanguageMatches(language, specific Language) bool {
 	return C.hb_language_matches(language, specific) == 1
 }
 
-// TODO:
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-from-string
-// func FeatureFromString() () {
-// 	return C.hb_feature_from_string()
-// }
+func FeatureFromString(str string) (feature Feature, ok bool) {
+	cStr := C.CString(str)
+	defer C.free(unsafe.Pointer(cStr))
 
-// TODO:
+	ok = C.hb_feature_from_string(cStr, -1, (*C.hb_feature_t)(unsafe.Pointer(&feature))) == 1
+	return
+}
+
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-to-string
-// func FeatureToString() {
-// 	return C.hb_feature_to_string()
-// }
+func FeatureToString(feature *Feature) string {
+	buf := make([]byte, 128)
+	C.hb_feature_to_string((*C.hb_feature_t)(unsafe.Pointer(feature)), (*C.char)(unsafe.Pointer(&buf[0])), 128)
+	return string(buf)
+}
 
-// TODO:
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-variation-from-string
-// func VariationFromString() {
-// 	return C.hb_variation_from_string()
-// }
+func VariationFromString(str string) (variation Variation, ok bool) {
+	cStr := C.CString(str)
+	defer C.free(unsafe.Pointer(cStr))
 
-// TODO:
+	ok = C.hb_variation_from_string(cStr, -1, (*C.hb_variation_t)(unsafe.Pointer(&variation))) == 1
+	return
+}
+
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-variation-to-string
-// func VariationToString() {
-// 	return C.hb_variation_to_string()
-// }
+func VariationToString(variation *Variation) string {
+	buf := make([]byte, 128)
+	C.hb_variation_to_string((*C.hb_variation_t)(unsafe.Pointer(variation)), (*C.char)(unsafe.Pointer(&buf[0])), 128)
+	return string(buf)
+}
 
 // DestroyFunc is a method type for destroying user-data callbacks.
 //
