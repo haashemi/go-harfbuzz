@@ -46,21 +46,13 @@ const (
 // negotiate ownership and lifecycle of data.
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-create
-//
-// TODO: research on the blob data memory management.
-func BlobCreate(data string, length int, mode MemoryMode, userData unsafe.Pointer, destroy DestroyFunc) Blob {
-	cData := C.CString(data)
-	defer C.free(unsafe.Pointer(cData))
-
-	return C.hb_blob_create(cData, C.uint(length), C.hb_memory_mode_t(mode), userData, destroy)
+func BlobCreate(data []byte, mode MemoryMode, userData unsafe.Pointer, destroy DestroyFunc) Blob {
+	return C.hb_blob_create((*C.char)(unsafe.Pointer(&data[0])), C.uint(len(data)), C.hb_memory_mode_t(mode), userData, destroy)
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-create-or-fail
-func BlobCreateOrFail(data string, length int, mode MemoryMode, userData unsafe.Pointer, destroy DestroyFunc) Blob {
-	cData := C.CString(data)
-	defer C.free(unsafe.Pointer(cData))
-
-	return C.hb_blob_create_or_fail(cData, C.uint(length), C.hb_memory_mode_t(mode), userData, destroy)
+func BlobCreateOrFail(data []byte, mode MemoryMode, userData unsafe.Pointer, destroy DestroyFunc) Blob {
+	return C.hb_blob_create_or_fail((*C.char)(unsafe.Pointer(&data[0])), C.uint(len(data)), C.hb_memory_mode_t(mode), userData, destroy)
 }
 
 // BlobCreateFromFile creates a new blob containing the data from the specified

@@ -1,6 +1,8 @@
 package harfbuzz
 
-import "github.com/haashemi/go-harfbuzz/hb"
+import (
+	"github.com/haashemi/go-harfbuzz/hb"
+)
 
 // Blob holds the low-level Blob.
 type Blob struct{ b hb.Blob }
@@ -24,5 +26,5 @@ func NewBlob(filename string) *Blob {
 
 // NewBlobFromBytes returns a new Blob from the data.
 func NewBlobFromBytes(data []byte) *Blob {
-	return &Blob{b: hb.BlobCreate(string(data), len(data), hb.MemoryModeReadonly, nil, nil)}
+	return &Blob{b: hb.BlobCreate(data, hb.MemoryModeDuplicate, nil, nil)}
 }
