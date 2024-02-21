@@ -14,22 +14,40 @@ import (
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-t
 type Buffer *C.hb_buffer_t
 
-// TODO: Document + Find a better for conversion between C & Go.
+// GlyphInfo holds information about the glyphs and their relation to input text.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-glyph-info-t
 type GlyphInfo struct {
+	// Either a Unicode code point (before shaping) or a glyph index (after shaping).
 	CodePoint uint32
-	Mask      uint32
-	Cluster   uint32
-	Var1      [4]byte
-	Var2      [4]byte
+	// [private]
+	mask uint32
+	// The index of the character in the original text that corresponds to this
+	// GlyphInfo, or whatever the client passes to BufferAdd. More than one
+	// GlyphInfo can have the same cluster value, if they resulted from the same
+	// character (e.g. one to many glyph substitution), and when more than one
+	// character gets merged in the same glyph (e.g. many to one glyph substitution)
+	// the hb_glyph_info_t will have the smallest cluster value of them. By default
+	// some characters are merged into the same cluster (e.g. combining marks have
+	//  the same cluster as their bases) even if they are separate glyphs,
+	// BufferSetClusterLevel allow selecting more fine-grained cluster handling.
+	Cluster uint32
+	// [private]
+	var1 [4]byte
+	// [private]
+	var2 [4]byte
 }
 
-// TODO: Document + Find a better for conversion between C & Go.
+// GlyphPosition holds the positions of the glyph in both horizontal and vertical
+// directions. All positions are relative to the current point.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-glyph-position-t
 type GlyphPosition struct {
-	XAdvance uint32
-	YAdvance uint32
-	XOffset  uint32
-	YOffset  uint32
-	Var      [4]byte
+	XAdvance uint32 // how much the line advances after drawing this glyph when setting text in horizontal direction.
+	YAdvance uint32 // how much the line advances after drawing this glyph when setting text in vertical direction.
+	XOffset  uint32 // how much the glyph moves on the X-axis before drawing it, this should not affect how much the line advances.
+	YOffset  uint32 // how much the glyph moves on the Y-axis before drawing it, this should not affect how much the line advances.
+	var1     [4]byte
 }
 
 // ContentType is type of buffer's contents.
@@ -38,9 +56,9 @@ type GlyphPosition struct {
 type ContentType C.hb_buffer_content_type_t
 
 const (
-	ContentTypeINVALID ContentType = C.HB_BUFFER_CONTENT_TYPE_INVALID // Initial value for new buffer.
-	ContentTypeUNICODE ContentType = C.HB_BUFFER_CONTENT_TYPE_UNICODE // The buffer contains input characters (before shaping).
-	ContentTypeGLYPHS  ContentType = C.HB_BUFFER_CONTENT_TYPE_GLYPHS  // The buffer contains output glyphs (after shaping).
+	ContentTypeInvalid ContentType = C.HB_BUFFER_CONTENT_TYPE_INVALID // Initial value for new buffer.
+	ContentTypeUnicode ContentType = C.HB_BUFFER_CONTENT_TYPE_UNICODE // The buffer contains input characters (before shaping).
+	ContentTypeGlyphs  ContentType = C.HB_BUFFER_CONTENT_TYPE_GLYPHS  // The buffer contains output glyphs (after shaping).
 )
 
 // BufferCreate returns a newly allocated Buffer. This function never returns nil.
@@ -92,10 +110,12 @@ func BufferDestroy(buffer Buffer) {
 	C.hb_buffer_destroy(buffer)
 }
 
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-user-data
 func BufferSetUserData(buffer Buffer, key *UserDataKey, data unsafe.Pointer, destroy DestroyFunc, replace bool) bool {
 	return C.hb_buffer_set_user_data(buffer, (*C.hb_user_data_key_t)(key), data, destroy, cBool(replace)) == 1
 }
 
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-user-data
 func BufferGetUserData(buffer Buffer, key *UserDataKey) unsafe.Pointer {
 	return C.hb_buffer_get_user_data(buffer, (*C.hb_user_data_key_t)(key))
 }
