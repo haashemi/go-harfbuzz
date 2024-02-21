@@ -16,19 +16,19 @@ type Buffer *C.hb_buffer_t
 
 // TODO: Document + Find a better for conversion between C & Go.
 type GlyphInfo struct {
-	CodePoint uint
-	Mask      uint
-	Cluster   uint
+	CodePoint uint32
+	Mask      uint32
+	Cluster   uint32
 	Var1      [4]byte
 	Var2      [4]byte
 }
 
 // TODO: Document + Find a better for conversion between C & Go.
 type GlyphPosition struct {
-	XAdvance uint
-	YAdvance uint
-	XOffset  uint
-	YOffset  uint
+	XAdvance uint32
+	YAdvance uint32
+	XOffset  uint32
+	YOffset  uint32
 	Var      [4]byte
 }
 
@@ -121,7 +121,7 @@ func BufferClearContents(buffer Buffer) {
 // of items. returns true on successful allocation.
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-pre-allocate
-func BufferPreAllocate(buffer Buffer, size uint) bool {
+func BufferPreAllocate(buffer Buffer, size uint32) bool {
 	return C.hb_buffer_pre_allocate(buffer, C.uint(size)) == 1
 }
 
@@ -153,7 +153,7 @@ func BufferAddUTF8(buffer Buffer, text string) {
 // BufferAppend appends part of the src buffer to the dst buffer.
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-append
-func BufferAppend(dst, src Buffer, start, end uint) {
+func BufferAppend(dst, src Buffer, start, end uint32) {
 	C.hb_buffer_append(dst, src, C.uint(start), C.uint(end))
 }
 
@@ -229,22 +229,15 @@ func BufferGuessSegmentProperties(buffer Buffer) {
 // TODO: C.hb_buffer_get_unicode_funcs
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-glyph-infos
-func BufferGetGlyphInfos(buffer Buffer, length *uint) (res []GlyphInfo) {
+func BufferGetGlyphInfos(buffer Buffer, length *uint32) (res []GlyphInfo) {
 	data := C.hb_buffer_get_glyph_infos(buffer, (*C.uint)(unsafe.Pointer(length)))
 	defer C.free(unsafe.Pointer(data))
 
 	size := unsafe.Sizeof(C.hb_glyph_info_t{})
 
-	for i := uint(0); i < *length; i++ {
-		gi := (*C.hb_glyph_info_t)(unsafe.Pointer(uintptr(unsafe.Pointer(data)) + size*uintptr(i)))
-
-		res = append(res, GlyphInfo{
-			CodePoint: uint(gi.codepoint),
-			Mask:      uint(gi.mask),
-			Cluster:   uint(gi.cluster),
-			Var1:      gi.var1,
-			Var2:      gi.var2,
-		})
+	for i := uint32(0); i < *length; i++ {
+		gi := *(*GlyphInfo)(unsafe.Pointer(uintptr(unsafe.Pointer(data)) + size*uintptr(i)))
+		res = append(res, gi)
 	}
 
 	return res
@@ -254,22 +247,15 @@ func BufferGetGlyphInfos(buffer Buffer, length *uint) (res []GlyphInfo) {
 // TODO: C.hb_glyph_info_get_glyph_flags
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-glyph-positions
-func BufferGetGlyphPositions(buffer Buffer, length *uint) (res []GlyphPosition) {
+func BufferGetGlyphPositions(buffer Buffer, length *uint32) (res []GlyphPosition) {
 	data := C.hb_buffer_get_glyph_positions(buffer, (*C.uint)(unsafe.Pointer(length)))
 	defer C.free(unsafe.Pointer(data))
 
 	size := unsafe.Sizeof(C.hb_glyph_position_t{})
 
-	for i := uint(0); i < *length; i++ {
-		gp := (*C.hb_glyph_position_t)(unsafe.Pointer(uintptr(unsafe.Pointer(data)) + size*uintptr(i)))
-
-		res = append(res, GlyphPosition{
-			XAdvance: uint(gp.x_advance),
-			YAdvance: uint(gp.y_advance),
-			XOffset:  uint(gp.x_offset),
-			YOffset:  uint(gp.y_offset),
-			Var:      gp._var,
-		})
+	for i := uint32(0); i < *length; i++ {
+		gp := *(*GlyphPosition)(unsafe.Pointer(uintptr(unsafe.Pointer(data)) + size*uintptr(i)))
+		res = append(res, gp)
 	}
 
 	return res

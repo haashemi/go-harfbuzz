@@ -75,7 +75,7 @@ func BlobCreateFromFileOrFail(filename string) Blob {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-create-sub-blob
-func BlobCreateSubBlob(parent Blob, offset, length uint) Blob {
+func BlobCreateSubBlob(parent Blob, offset, length uint32) Blob {
 	return C.hb_blob_create_sub_blob(parent, C.uint(offset), C.uint(length))
 }
 
@@ -128,8 +128,8 @@ func BlobGetData(blob Blob) string {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-get-length
-func BlobGetLength(blob Blob) uint {
-	return uint(C.hb_blob_get_length(blob))
+func BlobGetLength(blob Blob) uint32 {
+	return uint32(C.hb_blob_get_length(blob))
 }
 
 // Developer notes:

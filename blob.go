@@ -14,7 +14,7 @@ func (b *Blob) Blob() hb.Blob { return b.b }
 func (b *Blob) Data() []byte { return []byte(hb.BlobGetData(b.b)) }
 
 // Length returns the length of the blob's data.
-func (b *Blob) Length() uint { return hb.BlobGetLength(b.b) }
+func (b *Blob) Length() uint32 { return hb.BlobGetLength(b.b) }
 
 // Close destroys the blob and frees the memory.
 func (b *Blob) Close() { hb.BlobDestroy(b.b) }
