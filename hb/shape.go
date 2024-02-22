@@ -9,24 +9,13 @@ import (
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-shape.html#hb-shape
 func Shape(font Font, buffer Buffer, features []Feature) {
-	var cFeatures *C.hb_feature_t
-	if len(features) > 0 {
-		cFeatures = (*C.hb_feature_t)(unsafe.Pointer(&features[0]))
-	}
-
-	C.hb_shape(font, buffer, cFeatures, C.uint(len(features)))
+	C.hb_shape(font, buffer, cFeatures(features), C.uint(len(features)))
 }
 
-// TODO: Support shapers as arguments
+// TODO: Support shapers as argument
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-shape.html#hb-shape-full
-func ShapeFull(font Font, buffer Buffer, features []Feature /*, shapers []string*/) {
-	// cShapers := make([]*string, len(shapers)+1)
-	// for _, shaper := range shapers {
-	// 	cShapers = append(cShapers, &shaper)
-	// }
-	// cShapers = append(cShapers, nil)
-
+func ShapeFull(font Font, buffer Buffer, features []Feature) {
 	C.hb_shape_full(font, buffer, (*C.hb_feature_t)(unsafe.Pointer(&features[0])), C.uint(len(features)), C.hb_shape_list_shapers())
 }
 
