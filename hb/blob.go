@@ -100,8 +100,8 @@ func BlobDestroy(blob Blob) {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-set-user-data
-func BlobSetUserData(blob Blob, key *UserDataKey, data unsafe.Pointer, destroy DestroyFunc, replace bool) {
-	C.hb_blob_set_user_data(blob, (*C.hb_user_data_key_t)(key), data, destroy, cBool(replace))
+func BlobSetUserData(blob Blob, key *UserDataKey, data unsafe.Pointer, destroy DestroyFunc, replace bool) bool {
+	return C.hb_blob_set_user_data(blob, (*C.hb_user_data_key_t)(key), data, destroy, cBool(replace)) == 1
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-blob.html#hb-blob-get-user-data
