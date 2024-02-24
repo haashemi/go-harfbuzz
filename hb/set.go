@@ -66,37 +66,37 @@ func SetSet(set, other Set) {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-set.html#hb-set-has
-func SetHas(set Set, codePoint uint32) bool {
+func SetHas(set Set, codePoint Codepoint) bool {
 	return C.hb_set_has(set, C.uint(codePoint)) == 1
 }
 
 // SetAdd adds codePoint to set.
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-set.html#hb-set-add
-func SetAdd(set Set, codePoint uint32) {
+func SetAdd(set Set, codePoint Codepoint) {
 	C.hb_set_add(set, C.uint(codePoint))
 }
 
 // SetAddRange adds all of the elements from first to last (inclusive) to set.
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-set.html#hb-set-add-range
-func SetAddRange(set Set, firstCodePoint, lastCodePoint uint32) {
-	C.hb_set_add_range(set, C.uint(firstCodePoint), C.uint(lastCodePoint))
+func SetAddRange(set Set, first, last Codepoint) {
+	C.hb_set_add_range(set, C.uint(first), C.uint(last))
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-set.html#hb-set-add-sorted-array
-func SetAddSortedArray(set Set, sortedCodePoints []uint32) {
-	C.hb_set_add_sorted_array(set, (*C.uint)(unsafe.Pointer(&sortedCodePoints[0])), C.uint(len(sortedCodePoints)))
+func SetAddSortedArray(set Set, sortedCodepoints []Codepoint) {
+	C.hb_set_add_sorted_array(set, (*C.uint)(unsafe.Pointer(&sortedCodepoints[0])), C.uint(len(sortedCodepoints)))
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-set.html#hb-set-del
-func SetDel(set Set, codePoint uint32) {
-	C.hb_set_del(set, C.uint(codePoint))
+func SetDel(set Set, codepoint Codepoint) {
+	C.hb_set_del(set, C.uint(codepoint))
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-set.html#hb-set-del-range
-func SetDelRange(set Set, firstCodePoint, lastCodePoint uint32) {
-	C.hb_set_del_range(set, C.uint(firstCodePoint), C.uint(lastCodePoint))
+func SetDelRange(set Set, first, last Codepoint) {
+	C.hb_set_del_range(set, C.uint(first), C.uint(last))
 }
 
 // SetGetMax returns the largest element in the set.
@@ -175,9 +175,9 @@ func SetIsSubset(set, other Set) bool {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-set.html#hb-set-next
-func SetNext(set Set, codePoint uint32) (uint32, bool) {
-	ok := C.hb_set_next(set, (*C.uint)(&codePoint)) == 1
-	return codePoint, ok
+func SetNext(set Set, codepoint Codepoint) (Codepoint, bool) {
+	ok := C.hb_set_next(set, (*C.uint)(&codepoint)) == 1
+	return codepoint, ok
 }
 
 // TODO:

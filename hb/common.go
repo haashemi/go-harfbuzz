@@ -7,6 +7,11 @@ import (
 	"unsafe"
 )
 
+// Codepoint holds Unicode codepoints. Also used to hold glyph IDs.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-codepoint-t
+type Codepoint = uint32
+
 // Direction is the direction of a text segment or buffer.
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-direction-t
