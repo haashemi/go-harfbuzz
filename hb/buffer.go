@@ -8,6 +8,9 @@ import (
 	"unsafe"
 )
 
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#HB-SEGMENT-PROPERTIES-DEFAULT:CAPS
+const BufferReplacementCodepointDefault = 0xFFFD
+
 // Buffer is the main structure holding the input text and its properties
 // before shaping, and output glyphs and their information after shaping.
 //
@@ -18,10 +21,8 @@ type Buffer *C.hb_buffer_t
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-glyph-info-t
 type GlyphInfo struct {
-	// Either a Unicode code point (before shaping) or a glyph index (after shaping).
-	CodePoint uint32
-	// [private]
-	mask uint32
+	Codepoint uint32 // Either a Unicode code point (before shaping) or a glyph index (after shaping).
+	mask      uint32 // [private]
 	// The index of the character in the original text that corresponds to this
 	// GlyphInfo, or whatever the client passes to BufferAdd. More than one
 	// GlyphInfo can have the same cluster value, if they resulted from the same
@@ -29,28 +30,38 @@ type GlyphInfo struct {
 	// character gets merged in the same glyph (e.g. many to one glyph substitution)
 	// the hb_glyph_info_t will have the smallest cluster value of them. By default
 	// some characters are merged into the same cluster (e.g. combining marks have
-	//  the same cluster as their bases) even if they are separate glyphs,
+	// the same cluster as their bases) even if they are separate glyphs,
 	// BufferSetClusterLevel allow selecting more fine-grained cluster handling.
 	Cluster uint32
-	// [private]
-	var1 [4]byte
-	// [private]
-	var2 [4]byte
+	var1    [4]byte // [private]
+	var2    [4]byte // [private]
 }
+
+// GlyphFlags are flags for GlyphInfo.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-glyph-flags-t
+type GlyphFlags C.hb_glyph_flags_t
+
+const (
+	GlyphFlagUnsafeToBreak       GlyphFlags = C.HB_GLYPH_FLAG_UNSAFE_TO_BREAK
+	GlyphFlagUnsafeToConcat      GlyphFlags = C.HB_GLYPH_FLAG_UNSAFE_TO_CONCAT
+	GlyphFlagSafeToInsertTatweel GlyphFlags = C.HB_GLYPH_FLAG_SAFE_TO_INSERT_TATWEEL
+	GlyphFlagDefined             GlyphFlags = C.HB_GLYPH_FLAG_DEFINED
+)
 
 // GlyphPosition holds the positions of the glyph in both horizontal and vertical
 // directions. All positions are relative to the current point.
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-glyph-position-t
 type GlyphPosition struct {
-	XAdvance uint32 // how much the line advances after drawing this glyph when setting text in horizontal direction.
-	YAdvance uint32 // how much the line advances after drawing this glyph when setting text in vertical direction.
-	XOffset  uint32 // how much the glyph moves on the X-axis before drawing it, this should not affect how much the line advances.
-	YOffset  uint32 // how much the glyph moves on the Y-axis before drawing it, this should not affect how much the line advances.
-	var1     [4]byte
+	XAdvance uint32  // how much the line advances after drawing this glyph when setting text in horizontal direction.
+	YAdvance uint32  // how much the line advances after drawing this glyph when setting text in vertical direction.
+	XOffset  uint32  // how much the glyph moves on the X-axis before drawing it, this should not affect how much the line advances.
+	YOffset  uint32  // how much the glyph moves on the Y-axis before drawing it, this should not affect how much the line advances.
+	var1     [4]byte // [private]
 }
 
-// ContentType is type of buffer's contents.
+// ContentType is type of Buffer contents.
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-content-type-t
 type ContentType C.hb_buffer_content_type_t
@@ -59,6 +70,81 @@ const (
 	ContentTypeInvalid ContentType = C.HB_BUFFER_CONTENT_TYPE_INVALID // Initial value for new buffer.
 	ContentTypeUnicode ContentType = C.HB_BUFFER_CONTENT_TYPE_UNICODE // The buffer contains input characters (before shaping).
 	ContentTypeGlyphs  ContentType = C.HB_BUFFER_CONTENT_TYPE_GLYPHS  // The buffer contains output glyphs (after shaping).
+)
+
+// BufferFlags are flags for Buffer contents.
+//
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-flags-t
+type BufferFlags C.hb_buffer_flags_t
+
+const (
+	BufferFlagDefault                    BufferFlags = C.HB_BUFFER_FLAG_DEFAULT
+	BufferFlagBot                        BufferFlags = C.HB_BUFFER_FLAG_BOT
+	BufferFlagEot                        BufferFlags = C.HB_BUFFER_FLAG_EOT
+	BufferFlagPreserveDefaultIgnorables  BufferFlags = C.HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES
+	BufferFlagRemoveDefaultIgnorables    BufferFlags = C.HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES
+	BufferFlagDoNotInsertDottedCircle    BufferFlags = C.HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE
+	BufferFlagVerify                     BufferFlags = C.HB_BUFFER_FLAG_VERIFY
+	BufferFlagProduceUnsafeToConcat      BufferFlags = C.HB_BUFFER_FLAG_PRODUCE_UNSAFE_TO_CONCAT
+	BufferFlagProduceSafeToInsertTatweel BufferFlags = C.HB_BUFFER_FLAG_PRODUCE_SAFE_TO_INSERT_TATWEEL
+	BufferFlagDEFINED                    BufferFlags = C.HB_BUFFER_FLAG_DEFINED
+)
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-cluster-level-t
+type ClusterLevel C.hb_buffer_cluster_level_t
+
+const (
+	ClusterLevelMonotoneGraphemes  ClusterLevel = C.HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES  // Return cluster values grouped by graphemes into monotone order.
+	ClusterLevelMonotoneCharacters ClusterLevel = C.HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS // Return cluster values grouped into monotone order.
+	ClusterLevelCharacters         ClusterLevel = C.HB_BUFFER_CLUSTER_LEVEL_CHARACTERS          // Don't group cluster values.
+	ClusterLevelDefault            ClusterLevel = C.HB_BUFFER_CLUSTER_LEVEL_DEFAULT             // Default cluster level, equal to ClusterLevelMonotoneGraphemes.
+)
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-segment-properties-t
+type SegmentProperties struct {
+	Direction Direction      // the Direction of the buffer, see BufferSetDirection.
+	Script    Script         // the Script of the buffer, see BufferSetScript.
+	Language  Language       // the Language of the buffer, see BufferSetLanguage.
+	reserved1 unsafe.Pointer // [private]
+	reserved2 unsafe.Pointer // [private]
+}
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-serialize-format-t
+type SerializeFormat C.hb_buffer_serialize_format_t
+
+const (
+	SerializeFormatText    SerializeFormat = C.HB_BUFFER_SERIALIZE_FORMAT_TEXT    // a human-readable, plain text format.
+	SerializeFormatJson    SerializeFormat = C.HB_BUFFER_SERIALIZE_FORMAT_JSON    // a machine-readable JSON format.
+	SerializeFormatInvalid SerializeFormat = C.HB_BUFFER_SERIALIZE_FORMAT_INVALID // invalid format.
+)
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-serialize-flags-t
+type SerializeFlags C.hb_buffer_serialize_flags_t
+
+const (
+	SerializeFlagDefault      SerializeFlags = C.HB_BUFFER_SERIALIZE_FLAG_DEFAULT        //serialize glyph names, clusters and positions.
+	SerializeFlagNoClusters   SerializeFlags = C.HB_BUFFER_SERIALIZE_FLAG_NO_CLUSTERS    //do not serialize glyph cluster.
+	SerializeFlagNoPositions  SerializeFlags = C.HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS   //do not serialize glyph position information.
+	SerializeFlagNoGlyphNames SerializeFlags = C.HB_BUFFER_SERIALIZE_FLAG_NO_GLYPH_NAMES //do no serialize glyph name.
+	SerializeFlagGlyphExtents SerializeFlags = C.HB_BUFFER_SERIALIZE_FLAG_GLYPH_EXTENTS  //serialize glyph extents.
+	SerializeFlagGlyphFlags   SerializeFlags = C.HB_BUFFER_SERIALIZE_FLAG_GLYPH_FLAGS    //serialize glyph flags.
+	SerializeFlagNoAdvances   SerializeFlags = C.HB_BUFFER_SERIALIZE_FLAG_NO_ADVANCES    //do not serialize glyph advances, glyph offsets will reflect absolute glyph positions.
+	SerializeFlagDefined      SerializeFlags = C.HB_BUFFER_SERIALIZE_FLAG_DEFINED        //All currently defined flags.
+)
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-diff-flags-t
+type BufferDiffFlags C.hb_buffer_diff_flags_t
+
+const (
+	BufferDiffFlagEqual               BufferDiffFlags = C.HB_BUFFER_DIFF_FLAG_EQUAL                 // equal buffers.
+	BufferDiffFlagContentTypeMismatch BufferDiffFlags = C.HB_BUFFER_DIFF_FLAG_CONTENT_TYPE_MISMATCH // buffers with different ContentType.
+	BufferDiffFlagLengthMismatch      BufferDiffFlags = C.HB_BUFFER_DIFF_FLAG_LENGTH_MISMATCH       // buffers with differing length.
+	BufferDiffFlagNotdefPresent       BufferDiffFlags = C.HB_BUFFER_DIFF_FLAG_NOTDEF_PRESENT        // .notdef glyph is present in the reference buffer.
+	BufferDiffFlagDottedCirclePresent BufferDiffFlags = C.HB_BUFFER_DIFF_FLAG_DOTTED_CIRCLE_PRESENT // dotted circle glyph is present in the reference buffer.
+	BufferDiffFlagCodepointPresent    BufferDiffFlags = C.HB_BUFFER_DIFF_FLAG_CODEPOINT_MISMATCH    // difference in GlyphInfo.Codepoint
+	BufferDiffFlagClusterMismatch     BufferDiffFlags = C.HB_BUFFER_DIFF_FLAG_CLUSTER_MISMATCH      // difference in GlyphInfo.Cluster
+	BufferDiffFlagGlyphFlagsMismatch  BufferDiffFlags = C.HB_BUFFER_DIFF_FLAG_GLYPH_FLAGS_MISMATCH  // difference in GlyphFlags.
+	BufferDiffFlagPositionsMismatch   BufferDiffFlags = C.HB_BUFFER_DIFF_FLAG_POSITION_MISMATCH     // difference in GlyphPosition.
 )
 
 // BufferCreate returns a newly allocated Buffer. This function never returns nil.
