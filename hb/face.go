@@ -107,10 +107,8 @@ func FaceReferenceTable(face Face, tag Tag) Blob {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-face.html#hb-face-collect-unicodes
-func FaceCollectUnicodes(face Face) Set {
-	out := new(C.hb_set_t)
+func FaceCollectUnicodes(face Face, out Set) {
 	C.hb_face_collect_unicodes(face, out)
-	return out
 }
 
 // TODO:
@@ -120,17 +118,13 @@ func FaceCollectUnicodes(face Face) Set {
 // }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-face.html#hb-face-collect-variation-selectors
-func FaceCollectVariationSelectors(face Face) Set {
-	out := new(C.hb_set_t)
+func FaceCollectVariationSelectors(face Face, out Set) {
 	C.hb_face_collect_variation_selectors(face, out)
-	return out
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-face.html#hb-face-collect-variation-unicodes
-func FaceCollectVariationUnicodes(face Face, variationSelector Codepoint) Set {
-	out := new(C.hb_set_t)
+func FaceCollectVariationUnicodes(face Face, variationSelector Codepoint, out Set) {
 	C.hb_face_collect_variation_unicodes(face, C.uint(variationSelector), out)
-	return out
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-face.html#hb-face-builder-create
