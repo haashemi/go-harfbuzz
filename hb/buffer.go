@@ -54,10 +54,10 @@ const (
 //
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-glyph-position-t
 type GlyphPosition struct {
-	XAdvance uint32  // how much the line advances after drawing this glyph when setting text in horizontal direction.
-	YAdvance uint32  // how much the line advances after drawing this glyph when setting text in vertical direction.
-	XOffset  uint32  // how much the glyph moves on the X-axis before drawing it, this should not affect how much the line advances.
-	YOffset  uint32  // how much the glyph moves on the Y-axis before drawing it, this should not affect how much the line advances.
+	XAdvance int32   // how much the line advances after drawing this glyph when setting text in horizontal direction.
+	YAdvance int32   // how much the line advances after drawing this glyph when setting text in vertical direction.
+	XOffset  int32   // how much the glyph moves on the X-axis before drawing it, this should not affect how much the line advances.
+	YOffset  int32   // how much the glyph moves on the Y-axis before drawing it, this should not affect how much the line advances.
 	var1     [4]byte // [private]
 }
 
@@ -335,14 +335,16 @@ func BufferGuessSegmentProperties(buffer Buffer) {
 // TODO: C.hb_buffer_get_unicode_funcs
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-glyph-infos
-func BufferGetGlyphInfos(buffer Buffer, length *uint32) (res []GlyphInfo) {
-	data := C.hb_buffer_get_glyph_infos(buffer, (*C.uint)(unsafe.Pointer(length)))
+func BufferGetGlyphInfos(buffer Buffer) []GlyphInfo {
+	var length uint32
+	data := C.hb_buffer_get_glyph_infos(buffer, (*C.uint)(&length))
 
-	for i := uint32(0); i < *length; i++ {
-		item := *(*GlyphInfo)(unsafe.Pointer(uintptr(unsafe.Pointer(data)) + unsafe.Sizeof(C.hb_glyph_info_t{})*uintptr(i)))
-		res = append(res, item)
+	res := make([]GlyphInfo, length)
+	size := unsafe.Sizeof(C.hb_glyph_info_t{})
+
+	for i := uint32(0); i < length; i++ {
+		res[i] = *(*GlyphInfo)(unsafe.Pointer(uintptr(unsafe.Pointer(data)) + size*uintptr(i)))
 	}
-
 	return res
 }
 
@@ -350,14 +352,16 @@ func BufferGetGlyphInfos(buffer Buffer, length *uint32) (res []GlyphInfo) {
 // TODO: C.hb_glyph_info_get_glyph_flags
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-glyph-positions
-func BufferGetGlyphPositions(buffer Buffer, length *uint32) (res []GlyphPosition) {
-	data := C.hb_buffer_get_glyph_positions(buffer, (*C.uint)(unsafe.Pointer(length)))
+func BufferGetGlyphPositions(buffer Buffer) []GlyphPosition {
+	var length uint32
+	data := C.hb_buffer_get_glyph_positions(buffer, (*C.uint)(&length))
 
-	for i := uint32(0); i < *length; i++ {
-		item := *(*GlyphPosition)(unsafe.Pointer(uintptr(unsafe.Pointer(data)) + unsafe.Sizeof(C.hb_glyph_position_t{})*uintptr(i)))
-		res = append(res, item)
+	res := make([]GlyphPosition, length)
+	size := unsafe.Sizeof(C.hb_glyph_position_t{})
+
+	for i := uint32(0); i < length; i++ {
+		res[i] = *(*GlyphPosition)(unsafe.Pointer(uintptr(unsafe.Pointer(data)) + size*uintptr(i)))
 	}
-
 	return res
 }
 
