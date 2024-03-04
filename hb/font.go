@@ -8,6 +8,13 @@ import "unsafe"
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-font.html#hb-font-t
 type Font *C.hb_font_t
 
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-font.html#hb-font-extents-t
+type FontExtents struct {
+	Ascender  int32 // The height of typographic ascenders.
+	Descender int32 // The depth of typographic descenders.
+	LineGap   int32 // The suggested line-spacing gap.
+}
+
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-font.html#hb-glyph-extents-t
 type GlyphExtents struct {
 	XBearing int32 // Distance from the x-origin to the left extremum of the glyph.
@@ -285,6 +292,7 @@ func FontGetScale(font Font) (x, y int32) {
 // TODO: hb_font_funcs_get_user_data
 // TODO: hb_font_funcs_make_immutable
 // TODO: hb_font_funcs_is_immutable
+
 // TODO: (*hb_font_get_glyph_contour_point_func_t)
 // TODO: hb_font_funcs_set_glyph_contour_point_func
 // TODO: (*hb_font_get_glyph_extents_func_t)
@@ -323,6 +331,21 @@ type ReferenceTableFunc C.hb_reference_table_func_t
 // TODO: (*hb_font_get_font_extents_func_t)
 // TODO: hb_font_funcs_set_font_h_extents_func
 // TODO: hb_font_funcs_set_font_v_extents_func
-// TODO: hb_font_get_h_extents
-// TODO: hb_font_get_v_extents
-// TODO: hb_font_get_extents_for_direction
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-font.html#hb-font-get-h-extents
+func FontGetHExtents(font Font) (extents FontExtents, ok bool) {
+	ok = C.hb_font_get_h_extents(font, (*C.hb_font_extents_t)(unsafe.Pointer(&extents))) == 1
+	return
+}
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-font.html#hb-font-get-v-extents
+func FontGetVExtents(font Font) (extents FontExtents, ok bool) {
+	ok = C.hb_font_get_v_extents(font, (*C.hb_font_extents_t)(unsafe.Pointer(&extents))) == 1
+	return
+}
+
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-font.html#hb-font-get-extents-for-direction
+func FontGetExtentsForDirection(font Font, direction Direction) (extents FontExtents) {
+	C.hb_font_get_extents_for_direction(font, C.hb_direction_t(direction), (*C.hb_font_extents_t)(unsafe.Pointer(&extents)))
+	return
+}
