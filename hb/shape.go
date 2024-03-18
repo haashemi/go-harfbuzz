@@ -12,11 +12,12 @@ func Shape(font Font, buffer Buffer, features []Feature) {
 	C.hb_shape(font, buffer, cFeatures(features), C.uint(len(features)))
 }
 
-// TODO: Support shapers as argument
-//
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-shape.html#hb-shape-full
-func ShapeFull(font Font, buffer Buffer, features []Feature) {
-	C.hb_shape_full(font, buffer, (*C.hb_feature_t)(unsafe.Pointer(&features[0])), C.uint(len(features)), C.hb_shape_list_shapers())
+func ShapeFull(font Font, buffer Buffer, features []Feature, shaperList []string) {
+	shapers := cStringArray(shaperList)
+	defer freeStringArray(shapers)
+
+	C.hb_shape_full(font, buffer, (*C.hb_feature_t)(unsafe.Pointer(&features[0])), C.uint(len(features)), &shapers[0])
 }
 
 // ShapeListShapers returns the list of shapers supported by HarfBuzz.

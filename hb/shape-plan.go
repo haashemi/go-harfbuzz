@@ -17,42 +17,46 @@ import "unsafe"
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-shape-plan.html#hb-shape-plan-t
 type ShapePlan *C.hb_shape_plan_t
 
-// TODO: Support shapers as argument
-//
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-shape-plan.html#hb-shape-plan-create
-func ShapePlanCreate(face Face, props *SegmentProperties, userFeatures []Feature) ShapePlan {
-	return C.hb_shape_plan_create(face, (*C.hb_segment_properties_t)(unsafe.Pointer(props)), cFeatures(userFeatures), C.uint(len(userFeatures)), C.hb_shape_list_shapers())
+func ShapePlanCreate(face Face, props *SegmentProperties, userFeatures []Feature, shaperList []string) ShapePlan {
+	shapers := cStringArray(shaperList)
+	defer freeStringArray(shapers)
+
+	return C.hb_shape_plan_create(face, (*C.hb_segment_properties_t)(unsafe.Pointer(props)), cFeatures(userFeatures), C.uint(len(userFeatures)), &shapers[0])
 }
 
-// TODO: Support shapers as argument
-//
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-shape-plan.html#hb-shape-plan-create-cached
-func ShapePlanCreateCached(face Face, props *SegmentProperties, userFeatures []Feature) ShapePlan {
-	return C.hb_shape_plan_create_cached(face, (*C.hb_segment_properties_t)(unsafe.Pointer(props)), cFeatures(userFeatures), C.uint(len(userFeatures)), C.hb_shape_list_shapers())
+func ShapePlanCreateCached(face Face, props *SegmentProperties, userFeatures []Feature, shaperList []string) ShapePlan {
+	shapers := cStringArray(shaperList)
+	defer freeStringArray(shapers)
+
+	return C.hb_shape_plan_create_cached(face, (*C.hb_segment_properties_t)(unsafe.Pointer(props)), cFeatures(userFeatures), C.uint(len(userFeatures)), &shapers[0])
 }
 
-// TODO: Support shapers as argument
-//
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-shape-plan.html#hb-shape-plan-create2
-func ShapePlanCreate2(face Face, props *SegmentProperties, userFeatures []Feature, coords []int32) ShapePlan {
+func ShapePlanCreate2(face Face, props *SegmentProperties, userFeatures []Feature, coords []int32, shaperList []string) ShapePlan {
 	var cCoords *C.int
 	if len(coords) > 0 {
 		cCoords = (*C.int)(unsafe.Pointer(&coords[0]))
 	}
 
-	return C.hb_shape_plan_create2(face, (*C.hb_segment_properties_t)(unsafe.Pointer(props)), cFeatures(userFeatures), C.uint(len(userFeatures)), cCoords, C.uint(len(coords)), C.hb_shape_list_shapers())
+	shapers := cStringArray(shaperList)
+	defer freeStringArray(shapers)
+
+	return C.hb_shape_plan_create2(face, (*C.hb_segment_properties_t)(unsafe.Pointer(props)), cFeatures(userFeatures), C.uint(len(userFeatures)), cCoords, C.uint(len(coords)), &shapers[0])
 }
 
-// TODO: Support shapers as argument
-//
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-shape-plan.html#hb-shape-plan-create-cached2
-func ShapePlanCreateCached2(face Face, props *SegmentProperties, userFeatures []Feature, coords []int32) ShapePlan {
+func ShapePlanCreateCached2(face Face, props *SegmentProperties, userFeatures []Feature, coords []int32, shaperList []string) ShapePlan {
 	var cCoords *C.int
 	if len(coords) > 0 {
 		cCoords = (*C.int)(unsafe.Pointer(&coords[0]))
 	}
 
-	return C.hb_shape_plan_create_cached2(face, (*C.hb_segment_properties_t)(unsafe.Pointer(props)), cFeatures(userFeatures), C.uint(len(userFeatures)), cCoords, C.uint(len(coords)), C.hb_shape_list_shapers())
+	shapers := cStringArray(shaperList)
+	defer freeStringArray(shapers)
+
+	return C.hb_shape_plan_create_cached2(face, (*C.hb_segment_properties_t)(unsafe.Pointer(props)), cFeatures(userFeatures), C.uint(len(userFeatures)), cCoords, C.uint(len(coords)), &shapers[0])
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-shape-plan.html#hb-shape-plan-get-empty
