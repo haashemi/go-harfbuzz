@@ -231,19 +231,25 @@ func BufferPreAllocate(buffer Buffer, size uint32) bool {
 	return C.hb_buffer_pre_allocate(buffer, C.uint(size)) == 1
 }
 
-// TODO: C.hb_buffer_add
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-add
+func BufferAdd(buffer Buffer, codepoint Codepoint, cluster uint32) {
+	C.hb_buffer_add(buffer, C.uint(codepoint), C.uint(cluster))
+}
 
-// TODO: C.hb_buffer_add_codepoints
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-add-codepoints
+func BufferAddCodepoints(buffer Buffer, text []Codepoint) {
+	C.hb_buffer_add_codepoints(buffer, (*C.uint)(&text[0]), C.int(len(text)), 0, C.int(len(text)))
+}
 
-// TODO: C.hb_buffer_add_utf32
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-add-utf32
+func BufferAddUTF32(buffer Buffer, text []uint32) {
+	C.hb_buffer_add_utf32(buffer, (*C.uint)(&text[0]), C.int(len(text)), 0, C.int(len(text)))
+}
 
-// TODO: C.hb_buffer_add_utf16
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-add-utf16
-
-// TODO: Write a proper description for the functions bellow.
+func BufferAddUTF16(buffer Buffer, text []uint16) {
+	C.hb_buffer_add_utf16(buffer, (*C.ushort)(&text[0]), C.int(len(text)), 0, C.int(len(text)))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-add-utf8
 func BufferAddUTF8(buffer Buffer, text string) {
@@ -253,8 +259,10 @@ func BufferAddUTF8(buffer Buffer, text string) {
 	C.hb_buffer_add_utf8(buffer, cText, -1, 0, -1)
 }
 
-// TODO: C.hb_buffer_add_latin1
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-add-latin1
+func BufferAddLatin1(buffer Buffer, text []byte) {
+	C.hb_buffer_add_utf8(buffer, (*C.char)(unsafe.Pointer(&text[0])), C.int(len(text)), 0, C.int(len(text)))
+}
 
 // BufferAppend appends part of the src buffer to the dst buffer.
 //
@@ -294,34 +302,55 @@ func BufferGetScript(buffer Buffer) Script {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-language
-// TODO: C.hb_buffer_set_language
+func BufferSetLanguage(buf Buffer, language Language) {
+	C.hb_buffer_set_language(buf, language)
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-language
-// TODO: C.hb_buffer_get_language
+func BufferGetLanguage(buf Buffer) Language {
+	return Language(C.hb_buffer_get_language(buf))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-flags
-// TODO: C.hb_buffer_set_flags
+func BufferSetFlags(buf Buffer, flags BufferFlags) {
+	C.hb_buffer_set_flags(buf, C.hb_buffer_flags_t(flags))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-flags
-// TODO: C.hb_buffer_get_flags
+func BufferGetFlags(buf Buffer) BufferFlags {
+	return BufferFlags(C.hb_buffer_get_flags(buf))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-cluster-level
-// TODO: C.hb_buffer_set_cluster_level
+func BufferSetClusterLevel(buf Buffer, clusterLevel ClusterLevel) {
+	C.hb_buffer_set_cluster_level(buf, C.hb_buffer_cluster_level_t(clusterLevel))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-cluster-level
-// TODO: C.hb_buffer_get_cluster_level
+func BufferGetClusterLevel(buf Buffer) ClusterLevel {
+	return ClusterLevel(C.hb_buffer_get_cluster_level(buf))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-length
-// TODO: C.hb_buffer_set_length
+func BufferSetLength(buf Buffer, length uint32) bool {
+	return C.hb_buffer_set_length(buf, C.uint(length)) == 1
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-length
-// TODO: C.hb_buffer_get_length
+func BufferGetLength(buf Buffer) uint32 {
+	return uint32(C.hb_buffer_get_length(buf))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-segment-properties
-// TODO: C.hb_buffer_set_segment_properties
+func BufferSetSegmentProperties(buf Buffer, props SegmentProperties) {
+	C.hb_buffer_set_segment_properties(buf, (*C.hb_segment_properties_t)(unsafe.Pointer(&props)))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-segment-properties
-// TODO: C.hb_buffer_get_segment_properties
+func BufferGetSegmentProperties(buf Buffer) (props SegmentProperties) {
+	C.hb_buffer_get_segment_properties(buf, (*C.hb_segment_properties_t)(unsafe.Pointer(&props)))
+	return
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-guess-segment-properties
 func BufferGuessSegmentProperties(buffer Buffer) {
@@ -349,7 +378,9 @@ func BufferGetGlyphInfos(buffer Buffer) []GlyphInfo {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-glyph-info-get-glyph-flags
-// TODO: C.hb_glyph_info_get_glyph_flags
+func GlyphInfoGetGlyphFlags(info GlyphInfo) GlyphFlags {
+	return GlyphFlags(C.hb_glyph_info_get_glyph_flags((*C.hb_glyph_info_t)(unsafe.Pointer(&info))))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-glyph-positions
 func BufferGetGlyphPositions(buffer Buffer) []GlyphPosition {
