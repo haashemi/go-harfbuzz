@@ -15,18 +15,12 @@ type DrawState struct {
 	// in CGO, path_open is an int32, but it's a boolean. so we skip the next
 	// three bytes to be able to use a boolean for our bindings and also make
 	// sure that the C and Go structs are compatible with each other
-	skipped    [3]byte // [private] reserved by go-harfbuzz.
-	PathStartX float32 // X component of the start of current path
-	PathStartY float32 // Y component of the start of current path
-	CurrentX   float32 // X component of current point
-	CurrentY   float32 // Y component of current point
-	reserved1  [4]byte // [private] reserved by harfbuzz.
-	reserved2  [4]byte // [private] reserved by harfbuzz.
-	reserved3  [4]byte // [private] reserved by harfbuzz.
-	reserved4  [4]byte // [private] reserved by harfbuzz.
-	reserved5  [4]byte // [private] reserved by harfbuzz.
-	reserved6  [4]byte // [private] reserved by harfbuzz.
-	reserved7  [4]byte // [private] reserved by harfbuzz.
+	skipped    [3]byte     // [private] reserved by go-harfbuzz.
+	PathStartX float32     // X component of the start of current path
+	PathStartY float32     // Y component of the start of current path
+	CurrentX   float32     // X component of current point
+	CurrentY   float32     // Y component of current point
+	reserved   [7 * 4]byte // [private] reserved by harfbuzz.
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-draw.html#hb-draw-funcs-create
@@ -110,26 +104,26 @@ func DrawFuncsSetClosePathFunc(dfuncs DrawFuncs, fn DrawClosePathFunc, userData 
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-draw.html#hb-draw-move-to
-// func DrawMoveTo(dfuncs DrawFuncs) {
-// 	C.hb_draw_move_to(dfuncs)
-// }
+func DrawMoveTo(dfuncs DrawFuncs, drawData unsafe.Pointer, st *DrawState, toX, toY float32) {
+	C.hb_draw_move_to(dfuncs, drawData, (*C.hb_draw_state_t)(unsafe.Pointer(st)), C.float(toX), C.float(toY))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-draw.html#hb-draw-line-to
-// func DrawLineTo(dfuncs DrawFuncs) {
-// 	C.hb_draw_line_to(dfuncs)
-// }
+func DrawLineTo(dfuncs DrawFuncs, drawData unsafe.Pointer, st *DrawState, toX, toY float32) {
+	C.hb_draw_line_to(dfuncs, drawData, (*C.hb_draw_state_t)(unsafe.Pointer(st)), C.float(toX), C.float(toY))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-draw.html#hb-draw-quadratic-to
-// func DrawQuadraticTo(dfuncs DrawFuncs) {
-// 	C.hb_draw_quadratic_to(dfuncs)
-// }
+func DrawQuadraticTo(dfuncs DrawFuncs, drawData unsafe.Pointer, st *DrawState, controlX, controlY, toX, toY float32) {
+	C.hb_draw_quadratic_to(dfuncs, drawData, (*C.hb_draw_state_t)(unsafe.Pointer(st)), C.float(controlX), C.float(controlY), C.float(toX), C.float(toY))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-draw.html#hb-draw-cubic-to
-// func DrawCubicTo(dfuncs DrawFuncs) {
-// 	C.hb_draw_cubic_to(dfuncs)
-// }
+func DrawCubicTo(dfuncs DrawFuncs, drawData unsafe.Pointer, st *DrawState, control1X, control1Y, control2X, control2Y, toX, toY float32) {
+	C.hb_draw_cubic_to(dfuncs, drawData, (*C.hb_draw_state_t)(unsafe.Pointer(st)), C.float(control1X), C.float(control1Y), C.float(control2X), C.float(control2Y), C.float(toX), C.float(toY))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-draw.html#hb-draw-close-path
-// func DrawClosePath(dfuncs DrawFuncs) {
-// 	C.hb_draw_close_path(dfuncs)
-// }
+func DrawClosePath(dfuncs DrawFuncs, drawData unsafe.Pointer, st *DrawState) {
+	C.hb_draw_close_path(dfuncs, drawData, (*C.hb_draw_state_t)(unsafe.Pointer(st)))
+}
