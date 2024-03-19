@@ -397,28 +397,44 @@ func BufferGetGlyphPositions(buffer Buffer) []GlyphPosition {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-has-positions
-// TODO: C.hb_buffer_has_positions
+func BufferHasPositions(buffer Buffer) bool {
+	return C.hb_buffer_has_positions(buffer) == 1
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-invisible-glyph
-// TODO: C.hb_buffer_set_invisible_glyph
+func BufferSetInvisibleGlyph(buffer Buffer, invisible Codepoint) {
+	C.hb_buffer_set_invisible_glyph(buffer, C.uint(invisible))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-invisible-glyph
-// TODO: C.hb_buffer_get_invisible_glyph
+func BufferGetInvisibleGlyph(buffer Buffer) Codepoint {
+	return Codepoint(C.hb_buffer_get_invisible_glyph(buffer))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-not-found-glyph
-// TODO: C.hb_buffer_set_not_found_glyph
+func BufferSetNotFoundGlyph(buffer Buffer, notFound Codepoint) {
+	C.hb_buffer_set_not_found_glyph(buffer, C.uint(notFound))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-not-found-glyph
-// TODO: C.hb_buffer_get_not_found_glyph
+func BufferGetNotFoundGlyph(buffer Buffer) Codepoint {
+	return Codepoint(C.hb_buffer_get_not_found_glyph(buffer))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-replacement-codepoint
-// TODO: C.hb_buffer_set_replacement_codepoint
+func BufferSetReplacementCodepoint(buffer Buffer, replacement Codepoint) {
+	C.hb_buffer_set_replacement_codepoint(buffer, C.uint(replacement))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-get-replacement-codepoint
-// TODO: C.hb_buffer_get_replacement_codepoint
+func BufferGetReplacementCodepoint(buffer Buffer) Codepoint {
+	return Codepoint(C.hb_buffer_get_replacement_codepoint(buffer))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-normalize-glyphs
-// TODO: C.hb_buffer_normalize_glyphs
+func BufferNormalizeGlyphs(buffer Buffer) {
+	C.hb_buffer_normalize_glyphs(buffer)
+}
 
 // BufferReverse reverses the buffer contents.
 //
@@ -428,10 +444,14 @@ func BufferReverse(buffer Buffer) {
 }
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-reverse-range
-// TODO: C.hb_buffer_reverse_range
+func BufferReverseRange(buffer Buffer, start, end uint32) {
+	C.hb_buffer_reverse_range(buffer, C.uint(start), C.uint(end))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-reverse-clusters
-// TODO: C.hb_buffer_reverse_clusters
+func BufferReverseClusters(buffer Buffer) {
+	C.hb_buffer_reverse_clusters(buffer)
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-serialize
 // TODO: C.hb_buffer_serialize
@@ -458,19 +478,29 @@ func BufferReverse(buffer Buffer) {
 // TODO: C.hb_buffer_serialize_list_formats
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-segment-properties-equal
-// TODO: C.hb_segment_properties_equal
+func SegmentPropertiesEqual(a, b *SegmentProperties) bool {
+	return C.hb_segment_properties_equal((*C.hb_segment_properties_t)(unsafe.Pointer(a)), (*C.hb_segment_properties_t)(unsafe.Pointer(a))) == 1
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-segment-properties-hash
-// TODO: C.hb_segment_properties_hash
+func SegmentPropertiesHash(p *SegmentProperties) uint32 {
+	return uint32(C.hb_segment_properties_hash((*C.hb_segment_properties_t)(unsafe.Pointer(p))))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-segment-properties-overlay
-// TODO: C.hb_segment_properties_overlay
+func SegmentPropertiesOverlay(p, src *SegmentProperties) {
+	C.hb_segment_properties_overlay((*C.hb_segment_properties_t)(unsafe.Pointer(p)), (*C.hb_segment_properties_t)(unsafe.Pointer(src)))
+}
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-diff
-// TODO: C.hb_buffer_diff
+func BufferDiff(buffer, reference Buffer, dottedCircleGlyph Codepoint, positionFuzz uint32) BufferDiffFlags {
+	return BufferDiffFlags(C.hb_buffer_diff(buffer, reference, C.uint(dottedCircleGlyph), C.uint(positionFuzz)))
+}
 
-// https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-message-func-t
-// TODO: experiment what's hb_buffer_message_func_t
+// Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-message-func-t
+type MessageFunc C.hb_buffer_message_func_t
 
 // Learn more: https://harfbuzz.github.io/harfbuzz-hb-buffer.html#hb-buffer-set-message-func
-// TODO: C.hb_buffer_set_message_func
+func BufferSetMessageFunc(buffer Buffer, f MessageFunc, userData unsafe.Pointer, destroy DestroyFunc) {
+	C.hb_buffer_set_message_func(buffer, f, userData, destroy)
+}
