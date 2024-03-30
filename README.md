@@ -1,14 +1,17 @@
 # Go Harfbuzz bindings
 
-**This package is currently work-in-progress.**
+> [!NOTE]
+> go-harfbuzz is currently work-in-progress. The current goal is to implement all Harfbuzz v8.3 methods and then start to support newer versions.
 
-go-harfbuzz is a Golang bindings to the Harfbuzz text shaping engine.
+go-harfbuzz is a Golang binding to the Harfbuzz text shaping engine.
 
 ## Requirements:
 
-- harfbuzz
-- pkg-config
-- CGO enabled
+- Having `CGO` enabled
+- Having `pkg-config` installed.
+- Having `harfbuzz` installed.
+  - version: `8.3` or above.
+  - dev version required. (pkg-config should find it)
 
 ## Installation:
 
@@ -74,4 +77,8 @@ func main() {
 
 ### High-Level
 
-TODO
+Not implemented, yet.
+
+## Contributions
+
+All types of contributions are highly appreciated.
