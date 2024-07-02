@@ -9,9 +9,9 @@ go-harfbuzz is a Golang binding to the Harfbuzz text shaping engine.
 
 - Having `CGO` enabled
 - Having `pkg-config` installed.
-- Having `harfbuzz` installed.
+- Having `harfbuzz-dev` installed.
   - version: `8.3` or above.
-  - dev version required. (pkg-config should find it)
+  - note: `pkg-config` should find it.
 
 ## Installation:
 
@@ -20,8 +20,6 @@ go get -u github.com/haashemi/go-harfbuzz@main
 ```
 
 ## Usage:
-
-### Low-Level
 
 ```go
 package main
@@ -74,10 +72,6 @@ func main() {
 }
 
 ```
-
-### High-Level
-
-Not implemented, yet.
 
 ## Contributions
 
