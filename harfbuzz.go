@@ -1,4 +1,4 @@
-package hb
+package hb // import hb "github.com/haashemi/go-harfbuzz"
 
 // #cgo pkg-config: harfbuzz
 // #include <stdlib.h>

@@ -27,7 +27,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/haashemi/go-harfbuzz/hb"
+	hb "github.com/haashemi/go-harfbuzz"
 )
 
 func main() {
